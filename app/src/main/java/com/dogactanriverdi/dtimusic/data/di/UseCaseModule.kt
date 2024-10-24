@@ -5,6 +5,9 @@ import com.dogactanriverdi.dtimusic.domain.usecase.database.GetAllMusicUseCase
 import com.dogactanriverdi.dtimusic.domain.usecase.database.GetMusicByIdUseCase
 import com.dogactanriverdi.dtimusic.domain.usecase.database.InsertAllMusicUseCase
 import com.dogactanriverdi.dtimusic.domain.usecase.database.SearchMusicUseCase
+import com.dogactanriverdi.dtimusic.domain.usecase.music.GetAllMusicFromStorageUseCase
+import com.dogactanriverdi.dtimusic.domain.usecase.music.GetMusicByIdFromStorageUseCase
+import com.dogactanriverdi.dtimusic.domain.usecase.music.MusicUseCases
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,6 +30,17 @@ object UseCaseModule {
             getAllMusic = getAllMusicUseCase,
             getMusicById = getMusicByIdUseCase,
             searchMusic = searchMusicUseCase
+        )
+    }
+
+    @[Provides Singleton]
+    fun provideMusicUseCases(
+        getAllMusicFromStorageUseCase: GetAllMusicFromStorageUseCase,
+        getMusicByIdFromStorageUseCase: GetMusicByIdFromStorageUseCase
+    ): MusicUseCases {
+        return MusicUseCases(
+            getAllMusicFromStorage = getAllMusicFromStorageUseCase,
+            getMusicByIdFromStorage = getMusicByIdFromStorageUseCase
         )
     }
 }
