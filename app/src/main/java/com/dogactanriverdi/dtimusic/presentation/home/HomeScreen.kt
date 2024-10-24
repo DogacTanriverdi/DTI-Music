@@ -8,9 +8,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.sp
+import com.dogactanriverdi.dtimusic.presentation.home.components.CheckAndRequestPermission
 
 @Composable
 fun HomeScreen() {
+
+    CheckAndRequestPermission {
+        HomeContent()
+    }
+}
+
+@Composable
+fun HomeContent() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
