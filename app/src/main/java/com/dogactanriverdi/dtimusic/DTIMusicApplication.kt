@@ -1,4 +1,4 @@
-package com.dogactanriverdi.dtimusic.presentation
+package com.dogactanriverdi.dtimusic
 
 import android.app.Application
 import dagger.hilt.android.HiltAndroidApp
