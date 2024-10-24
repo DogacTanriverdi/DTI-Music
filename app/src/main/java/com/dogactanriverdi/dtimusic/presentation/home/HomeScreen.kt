@@ -62,37 +62,34 @@ fun HomeContent(
     mainViewModel: MainViewModel,
     mainOnAction: (MainContract.UiAction) -> Unit,
 ) {
-    Scaffold { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-        ) {
-            Text(
-                modifier = Modifier.padding(10.dp),
-                text = stringResource(R.string.recently_added),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        Text(
+            modifier = Modifier.padding(10.dp),
+            text = stringResource(R.string.recently_added),
+            fontSize = 22.sp,
+            fontWeight = FontWeight.Bold
+        )
 
-            LazyColumn(
-                modifier = Modifier
-                    .padding(horizontal = 10.dp)
-                    .weight(1f)
-            ) {
-                items(musicList) { music ->
-                    MusicItem(
-                        title = music.title,
-                        artist = music.artist,
-                        albumArtUri = music.albumArtUri.toUri(),
-                        duration = music.duration
-                    ) {
-                        mainViewModel.updateCurrentMusic(music)
-                        mainOnAction(MainContract.UiAction.ShowBottomPlayer)
-                        mainOnAction(MainContract.UiAction.Play(music))
-                        mainViewModel.updateIsPlaying(true)
-                        mainViewModel.updateMusicFrom("Recently added")
-                    }
+        LazyColumn(
+            modifier = Modifier
+                .padding(horizontal = 10.dp)
+                .weight(1f)
+        ) {
+            items(musicList) { music ->
+                MusicItem(
+                    title = music.title,
+                    artist = music.artist,
+                    albumArtUri = music.albumArtUri.toUri(),
+                    duration = music.duration
+                ) {
+                    mainViewModel.updateCurrentMusic(music)
+                    mainOnAction(MainContract.UiAction.ShowBottomPlayer)
+                    mainOnAction(MainContract.UiAction.Play(music))
+                    mainViewModel.updateIsPlaying(true)
+                    mainViewModel.updateMusicFrom("Recently added")
                 }
             }
         }

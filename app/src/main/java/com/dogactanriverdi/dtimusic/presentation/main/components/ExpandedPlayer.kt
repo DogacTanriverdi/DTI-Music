@@ -92,13 +92,14 @@ fun ExpandedPlayer(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
                 .then(modifier),
-            horizontalAlignment = Alignment.Start
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 10.dp, top = 10.dp, bottom = 20.dp, end = 10.dp),
+                    .padding(horizontal = 10.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 

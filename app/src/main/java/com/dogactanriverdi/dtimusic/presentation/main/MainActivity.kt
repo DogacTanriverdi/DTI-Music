@@ -2,13 +2,13 @@ package com.dogactanriverdi.dtimusic.presentation.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import com.dogactanriverdi.dtimusic.presentation.main.MainContract.UiAction
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,16 +22,19 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.dogactanriverdi.dtimusic.presentation.main.MainContract.UiAction
 import com.dogactanriverdi.dtimusic.presentation.main.components.BottomPlayer
 import com.dogactanriverdi.dtimusic.presentation.main.components.ExpandedPlayer
 import com.dogactanriverdi.dtimusic.presentation.navigation.BottomNavigationBar
@@ -59,6 +62,8 @@ class MainActivity : ComponentActivity() {
 
                 var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
 
+                var bottomPlayerPadding by remember { mutableStateOf(0.dp) }
+
                 val sheetState = rememberBottomSheetScaffoldState()
                 val scope = rememberCoroutineScope()
 
@@ -76,160 +81,182 @@ class MainActivity : ComponentActivity() {
                 with(uiState) {
 
                     LaunchedEffect(Unit) {
-                        while (isPlaying) {
+                        while (true) {
                             viewModel.getCurrentPosition()
                             delay(100L)
+                        }
+                    }
+
+                    LaunchedEffect(isBottomSheetVisible) {
+                        bottomPlayerPadding = if (isBottomSheetVisible) 100.dp else 0.dp
+                    }
+
+                    BackHandler(
+                        enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded
+                    ) {
+                        scope.launch {
+                            sheetState.bottomSheetState.partialExpand()
                         }
                     }
 
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         bottomBar = {
-                            BottomNavigationBar(
-                                navController = navController,
-                                selectedItemIndex = selectedItemIndex,
-                                onItemSelected = { index, item ->
-                                    selectedItemIndex = index
-                                    navController.navigate(item.title) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
+                            if (sheetState.bottomSheetState.currentValue != SheetValue.Expanded) {
+                                BottomNavigationBar(
+                                    navController = navController,
+                                    selectedItemIndex = selectedItemIndex,
+                                    onItemSelected = { index, item ->
+                                        selectedItemIndex = index
+                                        navController.navigate(item.title) {
+                                            popUpTo(navController.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
                                     }
-                                }
-                            )
+                                )
+                            }
                         }
                     ) { innerPadding ->
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(innerPadding)
+                        ) {
 
-                        BottomSheetScaffold(
-                            scaffoldState = sheetState,
-                            sheetContent = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable(
-                                            indication = null,
-                                            interactionSource = remember { MutableInteractionSource() }
-                                        )
-                                        {
-                                            if (sheetState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
-                                                scope.launch {
-                                                    sheetState.bottomSheetState.expand()
+                            NavigationGraph(
+                                modifier = Modifier.fillMaxSize()
+                                    .padding(bottom = bottomPlayerPadding),
+                                navController = navController,
+                                mainViewModel = viewModel
+                            )
+
+                            BottomSheetScaffold(
+                                scaffoldState = sheetState,
+                                sheetContent = {
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(
+                                                indication = null,
+                                                interactionSource = remember { MutableInteractionSource() }
+                                            )
+                                            {
+                                                if (sheetState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
+                                                    scope.launch {
+                                                        sheetState.bottomSheetState.expand()
+                                                    }
                                                 }
                                             }
+                                    ) {
+                                        if (sheetState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
+                                            BottomPlayer(
+                                                music = currentMusic,
+                                                isPlaying = isPlaying,
+                                                onSkipPreviousClicked = {
+                                                    val currentIndex =
+                                                        musicList.indexOfFirst { it.id == currentMusic.id }
+                                                    if (currentIndex > 0) {
+                                                        val previousMusic =
+                                                            musicList[currentIndex - 1]
+                                                        viewModel.updateCurrentMusic(previousMusic)
+                                                        onAction(
+                                                            UiAction.SkipToPrevious(
+                                                                previousMusic.contentUri.toUri()
+                                                            )
+                                                        )
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                                onPlayPauseClicked = {
+                                                    if (isPlaying) {
+                                                        onAction(
+                                                            UiAction.PlayPause(isPlaying = true)
+                                                        )
+                                                        viewModel.updateIsPlaying(isPlaying = false)
+                                                    } else {
+                                                        onAction(UiAction.PlayPause(isPlaying = false))
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                                onSkipNextClicked = {
+                                                    val currentIndex =
+                                                        musicList.indexOfFirst { it.id == currentMusic.id }
+                                                    if (currentIndex != -1 && currentIndex < musicList.size - 1) {
+                                                        val nextMusic = musicList[currentIndex + 1]
+                                                        viewModel.updateCurrentMusic(nextMusic)
+                                                        onAction(UiAction.SkipToNext(nextMusic.contentUri.toUri()))
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                            )
+                                        } else {
+                                            ExpandedPlayer(
+                                                music = currentMusic,
+                                                isPlaying = isPlaying,
+                                                onSkipPreviousClicked = {
+                                                    val currentIndex =
+                                                        musicList.indexOfFirst { it.id == currentMusic.id }
+                                                    if (currentIndex > 0) {
+                                                        val previousMusic =
+                                                            musicList[currentIndex - 1]
+                                                        viewModel.updateCurrentMusic(previousMusic)
+                                                        onAction(
+                                                            UiAction.SkipToPrevious(
+                                                                previousMusic.contentUri.toUri()
+                                                            )
+                                                        )
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                                currentPosition = uiState.currentPosition,
+                                                musicFrom = uiState.musicFrom,
+                                                onPlayPauseClicked = {
+                                                    if (isPlaying) {
+                                                        onAction(
+                                                            UiAction.PlayPause(isPlaying = true)
+                                                        )
+                                                        viewModel.updateIsPlaying(isPlaying = false)
+                                                    } else {
+                                                        onAction(UiAction.PlayPause(false))
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                                onSkipNextClicked = {
+                                                    val currentIndex =
+                                                        musicList.indexOfFirst { it.id == currentMusic.id }
+                                                    if (currentIndex != -1 && currentIndex < musicList.size - 1) {
+                                                        val nextMusic = musicList[currentIndex + 1]
+                                                        viewModel.updateCurrentMusic(nextMusic)
+                                                        onAction(UiAction.SkipToNext(nextMusic.contentUri.toUri()))
+                                                        viewModel.updateIsPlaying(isPlaying = true)
+                                                    }
+                                                },
+                                                onPositionChanged = { position ->
+                                                    viewModel.seekToPosition(position)
+                                                },
+                                                onCollapseClicked = {
+                                                    scope.launch {
+                                                        sheetState.bottomSheetState.partialExpand()
+                                                    }
+                                                },
+                                                onAddToPlaylistClicked = {}
+                                            )
                                         }
-                                ) {
-                                    if (sheetState.bottomSheetState.currentValue == SheetValue.PartiallyExpanded) {
-                                        BottomPlayer(
-                                            music = currentMusic,
-                                            isPlaying = isPlaying,
-                                            onSkipPreviousClicked = {
-                                                val currentIndex =
-                                                    musicList.indexOfFirst { it.id == currentMusic.id }
-                                                if (currentIndex > 0) {
-                                                    val previousMusic = musicList[currentIndex - 1]
-                                                    viewModel.updateCurrentMusic(previousMusic)
-                                                    onAction(UiAction.SkipToPrevious(previousMusic.contentUri.toUri()))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                            onPlayPauseClicked = {
-                                                if (isPlaying) {
-                                                    onAction(
-                                                        UiAction.PlayPause(isPlaying = true)
-                                                    )
-                                                    viewModel.updateIsPlaying(isPlaying = false)
-                                                } else {
-                                                    onAction(UiAction.PlayPause(isPlaying = false))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                            onSkipNextClicked = {
-                                                val currentIndex =
-                                                    musicList.indexOfFirst { it.id == currentMusic.id }
-                                                if (currentIndex != -1 && currentIndex < musicList.size - 1) {
-                                                    val nextMusic = musicList[currentIndex + 1]
-                                                    viewModel.updateCurrentMusic(nextMusic)
-                                                    onAction(UiAction.SkipToNext(nextMusic.contentUri.toUri()))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                        )
-                                    } else {
-                                        ExpandedPlayer(
-                                            modifier = Modifier.padding(innerPadding),
-                                            music = currentMusic,
-                                            isPlaying = isPlaying,
-                                            onSkipPreviousClicked = {
-                                                val currentIndex =
-                                                    musicList.indexOfFirst { it.id == currentMusic.id }
-                                                if (currentIndex > 0) {
-                                                    val previousMusic = musicList[currentIndex - 1]
-                                                    viewModel.updateCurrentMusic(previousMusic)
-                                                    onAction(UiAction.SkipToPrevious(previousMusic.contentUri.toUri()))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                            currentPosition = uiState.currentPosition,
-                                            musicFrom = uiState.musicFrom,
-                                            onPlayPauseClicked = {
-                                                if (isPlaying) {
-                                                    onAction(
-                                                        UiAction.PlayPause(isPlaying = true)
-                                                    )
-                                                    viewModel.updateIsPlaying(isPlaying = false)
-                                                } else {
-                                                    onAction(UiAction.PlayPause(false))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                            onSkipNextClicked = {
-                                                val currentIndex =
-                                                    musicList.indexOfFirst { it.id == currentMusic.id }
-                                                if (currentIndex != -1 && currentIndex < musicList.size - 1) {
-                                                    val nextMusic = musicList[currentIndex + 1]
-                                                    viewModel.updateCurrentMusic(nextMusic)
-                                                    onAction(UiAction.SkipToNext(nextMusic.contentUri.toUri()))
-                                                    viewModel.updateIsPlaying(isPlaying = true)
-                                                }
-                                            },
-                                            onPositionChanged = { position ->
-                                                viewModel.seekToPosition(position)
-                                            },
-                                            onCollapseClicked = {
-                                                scope.launch {
-                                                    sheetState.bottomSheetState.partialExpand()
-                                                }
-                                            },
-                                            onAddToPlaylistClicked = {}
-                                        )
                                     }
+                                },
+                                modifier = Modifier.align(Alignment.BottomCenter),
+                                sheetPeekHeight = if (isBottomSheetVisible) 100.dp else 0.dp,
+                                sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                sheetDragHandle = {
+                                    Box(
+                                        modifier = Modifier.height(1.dp)
+                                    )
                                 }
-                            },
-                            modifier = Modifier.fillMaxSize(),
-                            sheetPeekHeight = if (isBottomSheetVisible) 100.dp else 0.dp,
-                            sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            sheetDragHandle = {
-                                Box(
-                                    modifier = Modifier
-                                        .height(1.dp)
-                                )
-                            }
-                        ) { bottomSheetPadding ->
-
-                            Scaffold(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(bottomSheetPadding)
-                            ) { innerPadding ->
-                                NavigationGraph(
-                                    modifier = Modifier.padding(innerPadding),
-                                    navController = navController,
-                                    mainViewModel = viewModel
-                                )
-                            }
+                            ) {}
                         }
                     }
                 }
