@@ -226,7 +226,8 @@ class MainActivity : ComponentActivity() {
                             ) { innerPadding ->
                                 NavigationGraph(
                                     modifier = Modifier.padding(innerPadding),
-                                    navController = navController
+                                    navController = navController,
+                                    mainViewModel = viewModel
                                 )
                             }
                         }
