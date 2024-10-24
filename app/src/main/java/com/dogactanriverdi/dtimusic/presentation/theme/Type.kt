@@ -1,4 +1,4 @@
-package com.dogactanriverdi.dtimusic.ui.theme
+package com.dogactanriverdi.dtimusic.presentation.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
