@@ -1,30 +1,32 @@
 package com.dogactanriverdi.dtimusic.presentation.library
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.core.net.toUri
 import androidx.navigation.NavController
-import com.dogactanriverdi.dtimusic.R
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiState
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiEffect
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiAction
-import com.dogactanriverdi.dtimusic.presentation.library.components.AlbumItem
+import com.dogactanriverdi.dtimusic.presentation.library.components.AlbumsTab
 import com.dogactanriverdi.dtimusic.presentation.main.MainContract
 import com.dogactanriverdi.dtimusic.presentation.main.MainViewModel
 import com.dogactanriverdi.dtimusic.presentation.navigation.Screen
@@ -65,34 +67,44 @@ fun LibraryContent(
 ) {
     with(uiState) {
 
+        var selectedTabIndex by remember { mutableIntStateOf(0) }
+
+        val tabTitles = listOf("Albums", "Playlists")
+
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
-            Text(
-                modifier = Modifier.padding(20.dp),
-                text = stringResource(R.string.albums),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
-            )
 
-            LazyRow(
-                modifier = Modifier.padding(10.dp)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
             ) {
-                items(albumList) { album ->
-                    AlbumItem(
-                        name = album.name,
-                        artist = album.artist,
-                        albumArtUri = album.albumArtUri.toUri()
-                    ) {
-                        navController.navigate(
-                            Screen.AlbumDetail.route
-                            + "?albumId=${album.id}"
-                        )
-                    }
+                tabTitles.forEachIndexed { index, title ->
+                    FilterChip(
+                        modifier = Modifier.padding(horizontal = 10.dp),
+                        selected = selectedTabIndex == index,
+                        onClick = { selectedTabIndex = index },
+                        label = { Text(text = title) },
+                        shape = CircleShape,
+                    )
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            when (selectedTabIndex) {
+
+                0 -> {
+                    AlbumsTab(albumList) { albumId ->
+                        navController.navigate(
+                            route = Screen.AlbumDetail.route + "?albumId=$albumId"
+                        )
+                    }
+                }
+
+                1 -> {
+                    Text(text = "Playlists")
+                }
+            }
         }
     }
 }

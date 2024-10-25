@@ -83,6 +83,7 @@ fun NavigationGraph(
             val onAction = viewModel::onAction
 
             AlbumDetailScreen(
+                navController = navController,
                 backStackEntry = backStackEntry,
                 viewModel = viewModel,
                 uiState = uiState,

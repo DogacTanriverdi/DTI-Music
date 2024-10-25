@@ -10,6 +10,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBackIosNew
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
 import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import com.dogactanriverdi.dtimusic.R
 import com.dogactanriverdi.dtimusic.presentation.main.MainContract
@@ -38,6 +43,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun AlbumDetailScreen(
+    navController: NavController,
     backStackEntry: NavBackStackEntry,
     viewModel: AlbumDetailViewModel,
     uiState: UiState,
@@ -50,6 +56,7 @@ fun AlbumDetailScreen(
         viewModel.getAlbumById(albumId)
 
         AlbumDetailContent(
+            navController = navController,
             viewModel = viewModel,
             uiState = uiState,
             onAction = onAction,
@@ -61,6 +68,7 @@ fun AlbumDetailScreen(
 
 @Composable
 fun AlbumDetailContent(
+    navController: NavController,
     viewModel: AlbumDetailViewModel,
     uiState: UiState,
     onAction: (UiAction) -> Unit,
@@ -86,55 +94,70 @@ fun AlbumDetailContent(
             modifier = Modifier.fillMaxSize()
         ) {
 
-            if (isValidUri) {
-                AsyncImage(
-                    model = album.albumArtUri.toUri(),
-                    contentDescription = "Album Art",
-                    modifier = Modifier
-                        .size(300.dp)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .align(Alignment.CenterHorizontally),
-                    contentScale = ContentScale.Crop
-                )
-            } else {
-                AsyncImage(
-                    model = R.drawable.ic_music_note,
-                    contentDescription = "Album Art",
-                    modifier = Modifier
-                        .size(300.dp)
-                        .padding(10.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .align(Alignment.CenterHorizontally),
-                    contentScale = ContentScale.Crop,
-                    colorFilter = if (isDarkTheme) ColorFilter.tint(Color.White) else null
+            IconButton(
+                modifier = Modifier.padding(10.dp),
+                onClick = { navController.navigateUp() },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.ArrowBackIosNew,
+                    contentDescription = "Back",
+                    tint = MaterialTheme.colorScheme.onBackground
                 )
             }
 
-            Text(
-                modifier = Modifier
-                    .padding(top = 20.dp)
-                    .align(Alignment.CenterHorizontally),
-                text = album.name,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-            )
-
-            Text(
-                modifier = Modifier
-                    .padding(top = 10.dp)
-                    .align(Alignment.CenterHorizontally),
-                text = album.artist,
-                color = MaterialTheme.colorScheme.onBackground,
-                fontSize = 16.sp,
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
             LazyColumn(
-                modifier = Modifier.padding(10.dp)
+                modifier = Modifier.padding(10.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+                item {
+                    if (isValidUri) {
+                        AsyncImage(
+                            model = album.albumArtUri.toUri(),
+                            contentDescription = "Album Art",
+                            modifier = Modifier
+                                .size(300.dp)
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .align(Alignment.CenterHorizontally),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        AsyncImage(
+                            model = R.drawable.ic_music_note,
+                            contentDescription = "Album Art",
+                            modifier = Modifier
+                                .size(300.dp)
+                                .padding(10.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .align(Alignment.CenterHorizontally),
+                            contentScale = ContentScale.Crop,
+                            colorFilter = if (isDarkTheme) ColorFilter.tint(Color.White) else null
+                        )
+                    }
+
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 20.dp)
+                            .align(Alignment.CenterHorizontally),
+                        text = album.name,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 22.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                            .align(Alignment.CenterHorizontally),
+                        text = album.artist,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontSize = 16.sp,
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+                }
+
                 items(album.musicList) { music ->
                     AlbumDetailItem(
                         title = music.title,
