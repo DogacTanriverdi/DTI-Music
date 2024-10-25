@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">DTI Music</string>
     <string name="recently_added">Recently added</string>
+    <string name="albums">Albums</string>
 </resources>

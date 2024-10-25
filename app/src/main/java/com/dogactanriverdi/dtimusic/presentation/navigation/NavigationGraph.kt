@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import com.dogactanriverdi.dtimusic.presentation.home.HomeScreen
 import com.dogactanriverdi.dtimusic.presentation.home.HomeViewModel
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryScreen
+import com.dogactanriverdi.dtimusic.presentation.library.LibraryViewModel
 import com.dogactanriverdi.dtimusic.presentation.main.MainViewModel
 import com.dogactanriverdi.dtimusic.presentation.search.SearchScreen
 
@@ -46,7 +47,19 @@ fun NavigationGraph(
         }
 
         composable(route = Screen.Library.route) {
-            LibraryScreen()
+            val viewModel: LibraryViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val uiEffect = viewModel.uiEffect
+            val onAction = viewModel::onAction
+
+            LibraryScreen(
+                viewModel = viewModel,
+                uiState = uiState,
+                uiEffect = uiEffect,
+                onAction = onAction,
+                mainViewModel = mainViewModel,
+                mainOnAction = mainViewModel::onAction
+            )
         }
     }
 }
