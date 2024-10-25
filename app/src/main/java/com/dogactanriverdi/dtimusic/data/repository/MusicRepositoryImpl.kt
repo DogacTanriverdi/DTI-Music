@@ -4,6 +4,7 @@ import android.content.ContentResolver
 import android.content.ContentUris
 import android.net.Uri
 import android.provider.MediaStore
+import com.dogactanriverdi.dtimusic.data.model.Album
 import com.dogactanriverdi.dtimusic.data.model.Music
 import com.dogactanriverdi.dtimusic.domain.repository.MusicRepository
 import javax.inject.Inject
@@ -70,6 +71,7 @@ class MusicRepositoryImpl @Inject constructor(
                     artist = if (artist == "<unknown>") "Unknown Artist" else artist,
                     duration = duration,
                     album = album,
+                    albumId = albumId,
                     dateAdded = dateAdded,
                     albumArtUri = albumArtUri.toString(),
                     contentUri = contentUri.toString()
@@ -141,6 +143,7 @@ class MusicRepositoryImpl @Inject constructor(
                     artist = if (artist == "<unknown>") "Unknown Artist" else artist,
                     duration = duration,
                     album = album,
+                    albumId = albumId,
                     dateAdded = dateAdded,
                     albumArtUri = albumArtUri.toString(),
                     contentUri = contentUri.toString()
@@ -149,5 +152,22 @@ class MusicRepositoryImpl @Inject constructor(
         }
 
         return music
+    }
+
+    override fun getAllAlbumFromStorage(): List<Album> {
+        val musicList = getAllMusicFromStorage()
+
+        val albums = musicList.groupBy { it.album }.map { (albumName, songs) ->
+            Album(
+                id = songs.first().albumId,
+                name = albumName ?: "Unknown Album",
+                artist = songs.first().artist,
+                albumArtUri = songs.first().albumArtUri,
+                dateAdded = songs.first().dateAdded,
+                musicList = songs
+            )
+        }
+
+        return albums
     }
 }
