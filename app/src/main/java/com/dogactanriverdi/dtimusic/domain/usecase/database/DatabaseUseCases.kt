@@ -5,4 +5,8 @@ data class DatabaseUseCases(
     val getAllMusic: GetAllMusicUseCase,
     val getMusicById: GetMusicByIdUseCase,
     val searchMusic: SearchMusicUseCase,
+    val insertAllAlbum: InsertAllAlbumUseCase,
+    val getAllAlbum: GetAllAlbumUseCase,
+    val getAlbumById: GetAlbumByIdUseCase,
+    val searchAlbum: SearchAlbumUseCase,
 )
