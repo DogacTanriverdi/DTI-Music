@@ -13,4 +13,16 @@ data class Album(
     val albumArtUri: String,
     val dateAdded: Long,
     val musicList: List<Music>
-)
+) {
+
+    companion object {
+        val default = Album(
+            id = -1,
+            name = "",
+            artist = "<unknown>",
+            albumArtUri = "",
+            dateAdded = -1,
+            musicList = emptyList()
+        )
+    }
+}

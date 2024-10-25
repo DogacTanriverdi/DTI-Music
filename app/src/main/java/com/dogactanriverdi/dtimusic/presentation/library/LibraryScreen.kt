@@ -19,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 import com.dogactanriverdi.dtimusic.R
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiState
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiEffect
@@ -26,10 +27,12 @@ import com.dogactanriverdi.dtimusic.presentation.library.LibraryContract.UiActio
 import com.dogactanriverdi.dtimusic.presentation.library.components.AlbumItem
 import com.dogactanriverdi.dtimusic.presentation.main.MainContract
 import com.dogactanriverdi.dtimusic.presentation.main.MainViewModel
+import com.dogactanriverdi.dtimusic.presentation.navigation.Screen
 import kotlinx.coroutines.flow.Flow
 
 @Composable
 fun LibraryScreen(
+    navController: NavController,
     viewModel: LibraryViewModel,
     uiState: UiState,
     uiEffect: Flow<UiEffect>,
@@ -42,6 +45,7 @@ fun LibraryScreen(
     viewModel.getAllAlbum()
 
     LibraryContent(
+        navController = navController,
         viewModel = viewModel,
         uiState = uiState,
         onAction = onAction,
@@ -52,6 +56,7 @@ fun LibraryScreen(
 
 @Composable
 fun LibraryContent(
+    navController: NavController,
     viewModel: LibraryViewModel,
     uiState: UiState,
     onAction: (UiAction) -> Unit,
@@ -79,7 +84,10 @@ fun LibraryContent(
                         artist = album.artist,
                         albumArtUri = album.albumArtUri.toUri()
                     ) {
-
+                        navController.navigate(
+                            Screen.AlbumDetail.route
+                            + "?albumId=${album.id}"
+                        )
                     }
                 }
             }

@@ -6,8 +6,12 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
+import com.dogactanriverdi.dtimusic.presentation.albumdetail.AlbumDetailScreen
+import com.dogactanriverdi.dtimusic.presentation.albumdetail.AlbumDetailViewModel
 import com.dogactanriverdi.dtimusic.presentation.home.HomeScreen
 import com.dogactanriverdi.dtimusic.presentation.home.HomeViewModel
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryScreen
@@ -53,6 +57,33 @@ fun NavigationGraph(
             val onAction = viewModel::onAction
 
             LibraryScreen(
+                navController = navController,
+                viewModel = viewModel,
+                uiState = uiState,
+                uiEffect = uiEffect,
+                onAction = onAction,
+                mainViewModel = mainViewModel,
+                mainOnAction = mainViewModel::onAction
+            )
+        }
+
+        composable(
+            route = Screen.AlbumDetail.route +
+                    "?albumId={albumId}",
+            arguments = listOf(
+                navArgument("albumId") {
+                    type = NavType.LongType
+                    defaultValue = -1
+                }
+            )
+        ) { backStackEntry ->
+            val viewModel: AlbumDetailViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            val uiEffect = viewModel.uiEffect
+            val onAction = viewModel::onAction
+
+            AlbumDetailScreen(
+                backStackEntry = backStackEntry,
                 viewModel = viewModel,
                 uiState = uiState,
                 uiEffect = uiEffect,
