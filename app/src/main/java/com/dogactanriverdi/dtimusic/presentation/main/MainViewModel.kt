@@ -3,6 +3,7 @@ package com.dogactanriverdi.dtimusic.presentation.main
 import android.net.Uri
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
+import com.dogactanriverdi.dtimusic.data.model.Album
 import com.dogactanriverdi.dtimusic.data.model.Music
 import com.dogactanriverdi.dtimusic.domain.usecase.exoplayer.ExoPlayerUseCases
 import com.dogactanriverdi.dtimusic.domain.usecase.music.MusicUseCases
@@ -68,6 +69,10 @@ class MainViewModel @Inject constructor(
     fun getMusicById(musicId: Long): Music {
         val music = musicUseCases.getMusicByIdFromStorage(musicId)
         return music
+    }
+
+    fun getAllAlbum(): List<Album> {
+        return musicUseCases.getAllAlbumFromStorage()
     }
 
     private fun play(uri: Uri) {
