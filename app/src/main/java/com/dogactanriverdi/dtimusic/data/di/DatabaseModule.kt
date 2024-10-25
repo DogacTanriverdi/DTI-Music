@@ -3,6 +3,7 @@ package com.dogactanriverdi.dtimusic.data.di
 import android.content.Context
 import androidx.room.Room
 import com.dogactanriverdi.dtimusic.common.Constants.MUSIC_DATABASE
+import com.dogactanriverdi.dtimusic.data.source.local.AlbumDao
 import com.dogactanriverdi.dtimusic.data.source.local.MusicDao
 import com.dogactanriverdi.dtimusic.data.source.local.MusicDatabase
 import dagger.Module
@@ -32,5 +33,12 @@ object DatabaseModule {
         musicDatabase: MusicDatabase
     ): MusicDao {
         return musicDatabase.getMusicDao()
+    }
+
+    @[Provides Singleton]
+    fun provideAlbumDao(
+        musicDatabase: MusicDatabase
+    ): AlbumDao {
+        return musicDatabase.getAlbumDao()
     }
 }
