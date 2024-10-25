@@ -91,7 +91,7 @@ fun AlbumDetailContent(
                     model = album.albumArtUri.toUri(),
                     contentDescription = "Album Art",
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(300.dp)
                         .padding(10.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .align(Alignment.CenterHorizontally),
@@ -102,7 +102,7 @@ fun AlbumDetailContent(
                     model = R.drawable.ic_music_note,
                     contentDescription = "Album Art",
                     modifier = Modifier
-                        .size(150.dp)
+                        .size(300.dp)
                         .padding(10.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .align(Alignment.CenterHorizontally),
@@ -132,12 +132,13 @@ fun AlbumDetailContent(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            LazyColumn {
+            LazyColumn(
+                modifier = Modifier.padding(10.dp)
+            ) {
                 items(album.musicList) { music ->
                     AlbumDetailItem(
                         title = music.title,
                         artist = music.artist,
-                        albumArtUri = music.albumArtUri.toUri(),
                         duration = music.duration
                     ) {
                         mainViewModel.updateCurrentMusic(music)
