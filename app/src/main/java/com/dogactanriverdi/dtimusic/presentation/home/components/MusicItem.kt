@@ -90,7 +90,7 @@ fun MusicItem(
 
             Text(
                 text = title,
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -99,7 +99,7 @@ fun MusicItem(
 
             Text(
                 text = artist,
-                fontSize = 14.sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -109,7 +109,7 @@ fun MusicItem(
 
         Text(
             text = formatDuration(duration),
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             color = MaterialTheme.colorScheme.onBackground
         )
     }
