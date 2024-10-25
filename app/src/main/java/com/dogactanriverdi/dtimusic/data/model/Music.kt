@@ -12,6 +12,7 @@ data class Music(
     val artist: String,
     val duration: Long,
     val album: String,
+    val albumId: Long,
     val dateAdded: Long,
     val albumArtUri: String,
     val contentUri: String
@@ -24,6 +25,7 @@ data class Music(
             artist = "<unknown>",
             duration = -1,
             album = "",
+            albumId = -1,
             dateAdded = -1,
             albumArtUri = "",
             contentUri = ""
