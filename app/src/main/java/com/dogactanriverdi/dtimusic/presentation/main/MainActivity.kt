@@ -127,7 +127,8 @@ class MainActivity : ComponentActivity() {
                         ) {
 
                             NavigationGraph(
-                                modifier = Modifier.fillMaxSize()
+                                modifier = Modifier
+                                    .fillMaxSize()
                                     .padding(bottom = bottomPlayerPadding),
                                 navController = navController,
                                 mainViewModel = viewModel
@@ -241,8 +242,7 @@ class MainActivity : ComponentActivity() {
                                                     scope.launch {
                                                         sheetState.bottomSheetState.partialExpand()
                                                     }
-                                                },
-                                                onAddToPlaylistClicked = {}
+                                                }
                                             )
                                         }
                                     }
