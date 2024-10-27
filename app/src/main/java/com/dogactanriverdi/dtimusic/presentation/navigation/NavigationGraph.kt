@@ -18,6 +18,7 @@ import com.dogactanriverdi.dtimusic.presentation.library.LibraryScreen
 import com.dogactanriverdi.dtimusic.presentation.library.LibraryViewModel
 import com.dogactanriverdi.dtimusic.presentation.main.MainViewModel
 import com.dogactanriverdi.dtimusic.presentation.search.SearchScreen
+import com.dogactanriverdi.dtimusic.presentation.search.SearchViewModel
 
 @Composable
 fun NavigationGraph(
@@ -47,7 +48,16 @@ fun NavigationGraph(
         }
 
         composable(route = Screen.Search.route) {
-            SearchScreen()
+            val viewModel: SearchViewModel = hiltViewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            SearchScreen(
+                navController = navController,
+                viewModel = viewModel,
+                uiState = uiState,
+                mainViewModel = mainViewModel,
+                mainOnAction = mainViewModel::onAction
+            )
         }
 
         composable(route = Screen.Library.route) {
