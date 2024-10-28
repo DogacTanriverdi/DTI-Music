@@ -91,14 +91,6 @@ class MainActivity : ComponentActivity() {
                         bottomPlayerPadding = if (isBottomSheetVisible) 100.dp else 0.dp
                     }
 
-                    BackHandler(
-                        enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded
-                    ) {
-                        scope.launch {
-                            sheetState.bottomSheetState.partialExpand()
-                        }
-                    }
-
                     Scaffold(
                         modifier = Modifier.fillMaxSize(),
                         bottomBar = {
@@ -133,6 +125,14 @@ class MainActivity : ComponentActivity() {
                                 navController = navController,
                                 mainViewModel = viewModel
                             )
+
+                            BackHandler(
+                                enabled = sheetState.bottomSheetState.currentValue == SheetValue.Expanded
+                            ) {
+                                scope.launch {
+                                    sheetState.bottomSheetState.partialExpand()
+                                }
+                            }
 
                             BottomSheetScaffold(
                                 scaffoldState = sheetState,
